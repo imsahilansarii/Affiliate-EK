@@ -6,6 +6,26 @@ const API_TOKEN = process.env.API_TOKEN;
 
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
+bot.onText(/\/start/, (msg) => {
+    const chatId = msg.chat.id;
+    const name = msg.from.first_name || "User";
+
+    bot.sendMessage(chatId,
+`👋 Welcome ${name}!
+
+📌 What I do:
+🔗 Convert links → 💰 Affiliate links
+
+👇 Click below or send a link`,
+{
+    reply_markup: {
+        inline_keyboard: [
+            [{ text: "📢 Join Channel", url: "https://t.me/FrenzyLooters" }]
+        ]
+    }
+});
+});
+
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
