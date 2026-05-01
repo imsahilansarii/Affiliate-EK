@@ -60,7 +60,7 @@ bot.on('message', async (msg) => {
         const result = response.data;
 
         if (result && result.data) {
-            bot.sendMessage(chatId, `✅ Affiliate Link:\n${result.data}`);
+            bot.sendMessage(chatId, `✅ Here's your Link:\n${result.data}`);
         } else {
             bot.sendMessage(chatId, "❌ Conversion failed.");
         }
