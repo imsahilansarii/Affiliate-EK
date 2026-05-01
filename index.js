@@ -29,12 +29,13 @@ bot.onText(/\/start/, (msg) => {
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
-
-    if (!text || !text.includes('http')) {
-        bot.sendMessage(chatId, "Send a valid link.");
+    if (!text || text.startsWith('/')) {
         return;
     }
-
+    if (!text.match(/https?:\/\/\S+/)) {
+        bot.sendMessage(chatId, "🔗 Please send a valid link.");
+        return;
+    }
     try {
         const response = await axios.post(
             'https://ekaro-api.affiliaters.in/api/converter/public',
