@@ -28,14 +28,20 @@ bot.onText(/\/start/, (msg) => {
 
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
-    const text = msg.text;
+
+    const text = msg.text || msg.caption;
+
+
     if (!text || text.startsWith('/')) {
         return;
     }
+
+
     if (!text.match(/https?:\/\/\S+/)) {
         bot.sendMessage(chatId, "🔗 Please send a valid link.");
         return;
     }
+
     try {
         const response = await axios.post(
             'https://ekaro-api.affiliaters.in/api/converter/public',
@@ -45,20 +51,22 @@ bot.on('message', async (msg) => {
             },
             {
                 headers: {
-                    'Authorization': `Bearer ${API_TOKEN}`,
+                    'Authorization': `Bearer ${process.env.API_TOKEN}`,
                     'Content-Type': 'application/json'
                 }
             }
         );
 
-        if (response.data && response.data.data) {
-            bot.sendMessage(chatId, `Affiliate Link:\n${response.data.data}`);
+        const result = response.data;
+
+        if (result && result.data) {
+            bot.sendMessage(chatId, `✅ Affiliate Link:\n${result.data}`);
         } else {
-            bot.sendMessage(chatId, "Conversion failed.");
+            bot.sendMessage(chatId, "❌ Conversion failed.");
         }
 
     } catch (error) {
         console.log(error.response?.data || error.message);
-        bot.sendMessage(chatId, "Error occurred.");
+        bot.sendMessage(chatId, "⚠️ Error converting link.");
     }
 });
