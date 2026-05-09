@@ -59,25 +59,28 @@ bot.on('message', async (msg) => {
 
     const chatId = msg.chat.id;
 
-    // text OR image caption
-    const text = msg.text || msg.caption;
+    // support text + image/video caption
+    const text = msg.text || msg.caption || "";
 
     // ignore commands
-    if (!text || text.startsWith('/')) {
+    if (text.startsWith('/')) {
         return;
     }
 
-    // detect valid url
-    if (!text.match(/https?:\/\/\S+/)) {
+    // extract URL
+    const urlMatch = text.match(/https?:\/\/[^\s]+/);
+
+    if (!urlMatch) {
 
         bot.sendMessage(chatId,
 `❌ Please send a valid link.`);
         return;
     }
 
+    const extractedUrl = urlMatch[0];
+
     try {
 
-        // processing message
         const processing = await bot.sendMessage(chatId,
 `⚡ Converting your link...`);
 
@@ -85,7 +88,7 @@ bot.on('message', async (msg) => {
         const response = await axios.post(
             'https://ekaro-api.affiliaters.in/api/converter/public',
             {
-                deal: text,
+                deal: extractedUrl,
                 convert_option: "convert_only"
             },
             {
@@ -98,7 +101,7 @@ bot.on('message', async (msg) => {
 
         const result = response.data;
 
-        // delete processing msg
+        // remove processing msg
         try {
             await bot.deleteMessage(chatId, processing.message_id);
         } catch {}
@@ -107,20 +110,18 @@ bot.on('message', async (msg) => {
         if (result && result.data) {
 
             bot.sendMessage(chatId,
-`🔥 Here's your Converted Link 🔗 
+`🔥 Affiliate Link Ready
 
 ${result.data}`,
 {
     reply_markup: {
         inline_keyboard: [
-
             [
                 {
                     text: "🚀 Open Link",
                     url: result.data
                 }
             ]
-
         ]
     }
 });
