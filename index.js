@@ -109,24 +109,57 @@ bot.on('message', async (msg) => {
         // success
         if (result && result.data) {
 
-            bot.sendMessage(chatId,
-`🔥 Affiliate Link Ready
+    // original text/caption
+    let updatedText = text.replace(extractedUrl, result.data);
 
-${result.data}`,
-{
-    reply_markup: {
-        inline_keyboard: [
-            [
-                {
-                    text: "🚀 Open Link",
-                    url: result.data
-                }
-            ]
-        ]
+    // if image
+    if (msg.photo) {
+
+        const photoId = msg.photo[msg.photo.length - 1].file_id;
+
+        await bot.sendPhoto(chatId, photoId, {
+            caption: updatedText
+        });
+
     }
-});
 
-        } else {
+    // if video
+    else if (msg.video) {
+
+        await bot.sendVideo(chatId, msg.video.file_id, {
+            caption: updatedText
+        });
+
+    }
+
+    // if document
+    else if (msg.document) {
+
+        await bot.sendDocument(chatId, msg.document.file_id, {
+            caption: updatedText
+        });
+
+    }
+
+    // normal text
+    else {
+
+        await bot.sendMessage(chatId, updatedText, {
+            reply_markup: {
+                inline_keyboard: [
+                    [
+                        {
+                            text: "🚀 Open Link",
+                            url: result.data
+                        }
+                    ]
+                ]
+            }
+        });
+
+    }
+
+} else {
 
             bot.sendMessage(chatId,
 `❌ Failed to convert this link.`);
